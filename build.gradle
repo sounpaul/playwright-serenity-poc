@@ -1,0 +1,70 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    ext {
+        serenityVersion = '4.2.1'
+        lombokVersion = '1.18.34'
+        playwrightVersion = '1.47.0'
+        logbackVersion = '1.4.12'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'net.serenity-bdd.serenity-gradle-plugin' version "${serenityVersion}"
+}
+apply plugin: "net.serenity-bdd.serenity-gradle-plugin"
+
+group = 'com.org.capgemini'
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation "net.serenity-bdd:serenity-rest-assured:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-cucumber:${serenityVersion}"
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation "ch.qos.logback:logback-classic:${logbackVersion}"
+    testImplementation "com.microsoft.playwright:playwright:${playwrightVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+configurations {
+    testImplementation.extendsFrom implementation
+    testRuntime.extendsFrom runtime
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+sourceSets {
+    test {
+        java
+        resources
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+tasks.register('runTest', Test) {
+    finalizedBy('aggregate')
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperties(System.getProperties())
+    testLogging {
+        showStandardStreams = true
+    }
+}
+
+tasks.withType(Test).configureEach {
+// maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 500
+    maxParallelForks = 1
+}
