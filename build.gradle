@@ -9,6 +9,10 @@ buildscript {
         playwrightVersion = '1.47.0'
         logbackVersion = '1.4.12'
     }
+
+    dependencies {
+        classpath "net.serenity-bdd:serenity-single-page-report:${serenityVersion}"
+    }
 }
 
 plugins {
@@ -67,4 +71,19 @@ tasks.register('runTest', Test) {
 tasks.withType(Test).configureEach {
 // maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 500
     maxParallelForks = 1
+}
+
+task sendEmail(type: JavaExec) {
+    mainClass = 'com.org.capgemini.utils.SendEmailReport'  // Replace with your main class
+    classpath = sourceSets.test.runtimeClasspath
+    systemProperties(System.getProperties())
+}
+
+serenity {
+    reports = ["single-page-html"]
+}
+
+runTest.finalizedBy('reports')
+clean.doFirst {
+    delete "${rootDir}/videos"
 }

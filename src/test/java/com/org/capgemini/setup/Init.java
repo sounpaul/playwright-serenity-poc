@@ -1,6 +1,7 @@
 package com.org.capgemini.setup;
 
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.LoadState;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.core.Serenity;
 
@@ -33,9 +34,11 @@ public class Init {
          Browser.NewContextOptions options = new Browser.NewContextOptions().setClientCertificates(List.of(certificate));
          context = browser.newContext(options);
          **/
-        context = browser.newContext();
+        context = browser.newContext(new Browser.NewContextOptions().setRecordVideoDir(Paths.get(root + DS + "videos")));
         page = context.newPage();
         page.navigate(url);
+        page.waitForLoadState(LoadState.LOAD);
+        page.waitForSelector("//*[@id='__docusaurus']/nav/div[1]/div[1]/div");
         log.info("Browser launched and opened URL : {}", url);
     }
 
