@@ -30,8 +30,8 @@ public class LTCapabilities {
             ltOptions.addProperty("visual", true);
             ltOptions.addProperty("video", true);
             ltOptions.addProperty("timezone", "Kolkata");
-            ltOptions.addProperty("project", "Playwright Serenity POC" + buildSessionId);
-            ltOptions.addProperty("build", "Playwright-Serenity-POC" + buildSessionId);
+            ltOptions.addProperty("project", "Playwright-Serenity-POC-" + buildSessionId);
+            ltOptions.addProperty("build", "Playwright-Serenity-POC-" + buildSessionId);
             ltOptions.addProperty("w3c", true);
             ltOptions.addProperty("headless", false);
             ltOptions.addProperty("console", true);
