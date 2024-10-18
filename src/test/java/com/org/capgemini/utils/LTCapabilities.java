@@ -24,7 +24,7 @@ public class LTCapabilities {
             ltOptions.addProperty("visual", true);
             ltOptions.addProperty("video", true);
             ltOptions.addProperty("timezone", "Kolkata");
-            ltOptions.addProperty("project", "Playwright LambdaTest Certification");
+            ltOptions.addProperty("project", "Playwright Serenity POC");
             String buildSessionId = UUID.randomUUID() + "-" + getCurrentTime();
             ltOptions.addProperty("build", "Playwright-Serenity-POC");
             ltOptions.addProperty("w3c", true);
