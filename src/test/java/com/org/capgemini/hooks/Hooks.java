@@ -1,18 +1,22 @@
 package com.org.capgemini.hooks;
 
 import com.org.capgemini.setup.Init;
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
-import io.cucumber.java.BeforeAll;
-import io.cucumber.java.Scenario;
+import io.cucumber.java.*;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.model.environment.EnvironmentSpecificConfiguration;
 import net.thucydides.model.environment.SystemEnvironmentVariables;
 import net.thucydides.model.util.EnvironmentVariables;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 public class Hooks {
@@ -21,9 +25,28 @@ public class Hooks {
     private static Map<String, Integer> scenarioCounterMap = new HashMap<>();
     private static String previousScenarioOutline = "";
 
+    private static final String DS = FileSystems.getDefault().getSeparator();
+    private static final String root = System.getProperty("user.dir");
+    private static final File buildSessionFile = new File(root + DS + "buildSession.txt");
+
     @BeforeAll
     public static void beforeAll() {
         Thread.currentThread().setName("playwright-poc");
+        String buildSessionId = UUID.randomUUID() + "-" + getCurrentTime();
+        try {
+            FileUtils.writeStringToFile(buildSessionFile, buildSessionId, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        try {
+            FileUtils.delete(buildSessionFile);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     @Before
@@ -64,6 +87,12 @@ public class Hooks {
             }
         }
         return tagExist;
+    }
+
+    private static String getCurrentTime() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter tf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+        return tf.format(currentTime);
     }
 
 }

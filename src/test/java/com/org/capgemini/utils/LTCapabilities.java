@@ -2,18 +2,24 @@ package com.org.capgemini.utils;
 
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 
 @Slf4j
 public class LTCapabilities {
 
+    private static final String DS = FileSystems.getDefault().getSeparator();
+    private static final String root = System.getProperty("user.dir");
+    private static final File buildSessionFile = new File(root + DS + "buildSession.txt");
+
     public static String getCapabilities() {
         String cdpUrl = "";
         try {
+            String buildSessionId = FileUtils.readFileToString(buildSessionFile, StandardCharsets.UTF_8);
             JsonObject capabilities = new JsonObject();
             JsonObject ltOptions = new JsonObject();
             capabilities.addProperty("browsername", "Chrome");
@@ -24,9 +30,8 @@ public class LTCapabilities {
             ltOptions.addProperty("visual", true);
             ltOptions.addProperty("video", true);
             ltOptions.addProperty("timezone", "Kolkata");
-            ltOptions.addProperty("project", "Playwright Serenity POC");
-            String buildSessionId = UUID.randomUUID() + "-" + getCurrentTime();
-            ltOptions.addProperty("build", "Playwright-Serenity-POC");
+            ltOptions.addProperty("project", "Playwright Serenity POC" + buildSessionId);
+            ltOptions.addProperty("build", "Playwright-Serenity-POC" + buildSessionId);
             ltOptions.addProperty("w3c", true);
             ltOptions.addProperty("headless", false);
             ltOptions.addProperty("console", true);
@@ -34,17 +39,10 @@ public class LTCapabilities {
             capabilities.add("LT:Options", ltOptions);
             String caps = URLEncoder.encode(capabilities.toString(), "utf-8");
             cdpUrl = "wss://cdp.lambdatest.com/playwright?capabilities=" + caps;
-            log.info("LambdaTest build session ID : {}", buildSessionId);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         return cdpUrl;
-    }
-
-    private static String getCurrentTime() {
-        LocalDateTime currentTime = LocalDateTime.now();
-        DateTimeFormatter tf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-        return tf.format(currentTime);
     }
 
 }
