@@ -33,4 +33,5 @@ target/
 hs_err_pid*
 
 videos/
+bin/
 

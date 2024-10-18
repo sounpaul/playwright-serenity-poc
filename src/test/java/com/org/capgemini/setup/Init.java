@@ -2,6 +2,7 @@ package com.org.capgemini.setup;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.LoadState;
+import com.org.capgemini.utils.LTCapabilities;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.core.Serenity;
 
@@ -27,14 +28,13 @@ public class Init {
         String url = System.getProperty("webdriver.base.url");
         Playwright playwright = Playwright.create();
         BrowserType chrome = playwright.chromium();
-        browser = chrome.launch(new BrowserType.LaunchOptions().setHeadless(headless));
-        /**
-         ClientCertificate certificate = new ClientCertificate("signincert.capgemini.com:443");
-         certificate.setPfxPath(Paths.get(root + DS + "sounpaulcert.cer"));
-         Browser.NewContextOptions options = new Browser.NewContextOptions().setClientCertificates(List.of(certificate));
-         context = browser.newContext(options);
-         **/
-        context = browser.newContext(new Browser.NewContextOptions().setRecordVideoDir(Paths.get(root + DS + "videos")));
+        if (System.getProperty("runOnLT").equals("Yes")) {
+            browser = chrome.connect(LTCapabilities.getCapabilities());
+            context = browser.newContext();
+        } else {
+            browser = chrome.launch(new BrowserType.LaunchOptions().setHeadless(headless));
+            context = browser.newContext(new Browser.NewContextOptions().setRecordVideoDir(Paths.get(root + DS + "videos")));
+        }
         page = context.newPage();
         page.navigate(url);
         page.waitForLoadState(LoadState.LOAD);
